@@ -1,0 +1,17 @@
+{
+  "name": "testapp-performance-tests",
+  "version": "1.0.0",
+  "description": "Performance tests for TestApp",
+  "scripts": {
+    "test:k6:smoke": "k6 run -e TEST_APP_URL=http://localhost:3000 k6/health-load-test.ts --scenario smoke",
+    "test:k6:load": "k6 run -e TEST_APP_URL=http://localhost:3000 k6/health-load-test.ts --scenario load",
+    "test:k6:stress": "k6 run -e TEST_APP_URL=http://localhost:3000 k6/health-load-test.ts --scenario stress",
+    "test:k6:spike": "k6 run -e TEST_APP_URL=http://localhost:3000 k6/health-load-test.ts --scenario spike",
+    "test:artillery": "artillery run artillery/health-load-test.yml",
+    "test:artillery:report": "artillery run artillery/health-load-test.yml --output report.json && artillery report report.json"
+  },
+  "devDependencies": {
+    "@types/k6": "^0.48.0",
+    "artillery": "^2.0.0"
+  }
+}
