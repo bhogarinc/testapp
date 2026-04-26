@@ -1,0 +1,65 @@
+# ============================================
+# TestApp Docker Compose - Development Overrides
+# Hot-reload, debug ports, and development tools
+# ============================================
+
+version: '3.8'
+
+services:
+  testapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: testapp-dev
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # Node.js debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - LOG_LEVEL=debug
+      - DEBUG=testapp:*
+    volumes:
+      - .:/app
+      - /app/node_modules  # Anonymous volume to prevent overwriting
+    command: ["npm", "run", "dev"]
+    restart: unless-stopped
+    networks:
+      - testapp-dev-network
+
+  # Redis for caching/ sessions (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: testapp-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - testapp-dev-network
+
+  # MongoDB for development (optional)
+  mongodb:
+    image: mongo:7
+    container_name: testapp-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=testapp
+    volumes:
+      - mongodb-data:/data/db
+    restart: unless-stopped
+    networks:
+      - testapp-dev-network
+
+networks:
+  testapp-dev-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  mongodb-data:
