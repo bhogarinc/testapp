@@ -1,0 +1,47 @@
+config:
+  target: '{{ $processEnvironment.TEST_APP_URL || "http://localhost:3000" }}'
+  phases:
+    - duration: 60
+      arrivalRate: 1
+      name: "Smoke test"
+    
+    - duration: 300
+      arrivalRate: 10
+      rampTo: 50
+      name: "Ramp up load"
+    
+    - duration: 600
+      arrivalRate: 50
+      name: "Sustained load"
+  
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+  
+  plugins:
+    ensure: {}
+    metrics-by-endpoint: {}
+  
+  ensure:
+    thresholds:
+      - http.response_time.p95: 500
+      - http.error_rate: 0.1
+
+scenarios:
+  - name: "Health Check Flow"
+    weight: 70
+    flow:
+      - get:
+          url: "/api/v1/health"
+          capture:
+            - json: "$.status"
+              as: "healthStatus"
+      - think: 1
+      - log: "Health status: {{ healthStatus }}"
+
+  - name: "API Info Flow"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/v1/"
+      - think: 2
