@@ -1,0 +1,14 @@
+# ============================================
+# TestApp Kubernetes Pod Disruption Budget
+# ============================================
+
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: testapp
+  namespace: testapp
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: testapp
