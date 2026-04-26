@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=test
+      - PORT=3000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  e2e-tests:
+    build:
+      context: ./e2e
+      dockerfile: Dockerfile
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      - TEST_APP_URL=http://app:3000
+    volumes:
+      - ./e2e/test-results:/app/test-results
+      - ./e2e/playwright-report:/app/playwright-report
+
+  integration-tests:
+    build:
+      context: ./integration
+      dockerfile: Dockerfile
+    depends_on:
+      - app
+    environment:
+      - API_BASE_URL=http://app:3000/api/v1
