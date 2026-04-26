@@ -1,0 +1,12 @@
+# ============================================
+# TestApp Kubernetes Namespace
+# ============================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: testapp
+  labels:
+    app: testapp
+    environment: production
+    istio-injection: enabled
